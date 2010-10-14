@@ -124,8 +124,8 @@ def load_tiles(tiles_path, width, height):
     tile_image = pygame.image.load(tiles_path)
 
     tiles = []
-    for y in range(image.get_rect()[3] // height):
-        tiles.append(image.subsurface(0, y * height, width, height))
+    for y in range(tile_image.get_rect()[3] // height):
+        tiles.append(tile_image.subsurface(0, y * height, width, height))
         tiles[-1].set_colorkey((255, 0, 255))
 
     return tiles
