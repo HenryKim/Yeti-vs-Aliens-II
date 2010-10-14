@@ -120,12 +120,12 @@ def load_layers(layernames):
 
     return layers
 
-def load_tiles(tiles_path):
+def load_tiles(tiles_path, width, height):
     tile_image = pygame.image.load(tiles_path)
 
     tiles = []
-    for y in range(tile_image.get_rect()[3] // tile_height):
-        tiles.append(tile_image.subsurface(0, y * tile_height, tile_width, tile_height))
+    for y in range(image.get_rect()[3] // height):
+        tiles.append(image.subsurface(0, y * height, width, height))
         tiles[-1].set_colorkey((255, 0, 255))
 
     return tiles
@@ -590,7 +590,7 @@ def main():
     pygame.time.set_timer(pygame.VIDEOEXPOSE, 1000 / framerate)
     window = pygame.display.set_mode((window_width, window_height))
 
-    tiles = load_tiles(tiles_path)
+    tiles = load_tiles(tiles_path, tile_width, tile_height)
     play(level, window, tiles, editing=editing)
 
     if editing:
