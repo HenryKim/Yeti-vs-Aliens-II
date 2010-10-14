@@ -342,14 +342,12 @@ def play(level, window, tiles, editing=False):
                     player.stage = 0
                 player.stage += 1
                 player.right = False
-                print player.stage
                 player.image = player.limage[(player.stage/4)%len(player.rimage)]
             elif player.vx > 0:
                 if not player.right:
                     player.stage = 0
                 player.stage += 1
                 player.right = True
-                print player.stage
                 player.image = player.rimage[(player.stage/4)%len(player.rimage)]
 
             screen.blit(player.image, (player.x - camera.x, player.y - camera.y, player.w, player.h))
