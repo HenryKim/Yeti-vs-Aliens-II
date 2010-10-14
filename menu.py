@@ -7,9 +7,15 @@ import dircache
 
 def customlevel(edit):
     subdir = ""
-    print dircache.listdir('levels')
+    update = False
+    buttons = dircache.listdir('levels/')
+    while True:
+        if (update):
+            dircache.listdir('level/'+subdir)
+
+
        
-def menumain(screen):
+def main(screen):
     buttons = ["New game", "Custom Level", "Level Editor", "Quit."]
     button_height = 37
     menu_margin = 30
@@ -57,11 +63,11 @@ def menumain(screen):
                 rect = labels[i].get_rect()
                 if (event.pos[0] < rect[2] + menu_margin and event.pos[0] > menu_margin and event.pos[1] > menu_margin + i*button_height and event.pos[1] < menu_margin + (i+1)*button_height):
                     if i == 0:
-                        return (0, "levels/campaigns/default/level1")
+                        return False, "levels/campaigns/default/level1"
                     elif i == 1:
-                        return customlevel(0)
+                        return False customlevel()
                     elif i == 2:
-                        return customlevel(1)
+                        return True customlevel(True)
                     elif i == 3:
                         sys.exit(0)
                 
@@ -79,4 +85,4 @@ if (__name__ == '__main__'):
     window_width = 640
     window_height = 480
     screen = pygame.display.set_mode((window_width, window_height))
-    menumain(screen)
+    main(screen)

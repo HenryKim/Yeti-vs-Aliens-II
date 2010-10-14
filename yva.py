@@ -6,6 +6,16 @@ import sys
 
 import pygame
 
+def load_tiles(tiles_path, width, height):
+    tile_image = pygame.image.load(tiles_path)
+
+    tiles = []
+    for y in range(tile_image.get_rect()[3] // height):
+        tiles.append(tile_image.subsurface(0, y * height, width, height))
+        tiles[-1].set_colorkey((255, 0, 255))
+
+    return tiles
+
 class Decal:
     def __init__(self, stagetime, x, y, sprites):
         self.alpha = 255
@@ -68,6 +78,7 @@ class Player:
     maxjumptime = 8
     speed = 4
     right = True
+    stage = 0
 
     life = 5
     heart = pygame.image.load("gfx/items/heart.png")
@@ -76,12 +87,14 @@ class Player:
     vx = 0
     vy = 0
 
-    w = 32
-    h = 43
+    w = 67
+    h = 80
 
-    rimage = pygame.image.load("gfx/characters/yeti.png")
-    limage = pygame.transform.flip(rimage, True, False)
-    image = rimage
+    rimage = load_tiles("gfx/characters/yeti_anim_right.png", 67, 80)
+    limage = []
+    for image in rimage:
+        limage.append(pygame.transform.flip(image, True, False))
+    image = rimage[0]
 
     def __init__(self, x, y):
         self.x, self.y = x, y
@@ -94,7 +107,7 @@ decals = []
 layers_dir = ["gfx", "layers"]
 tiles_path = os.path.join("gfx", "tiles.png")
 
-framerate = 60
+framerate = 20
 
 tile_width = 32
 tile_height = 32
@@ -119,16 +132,6 @@ def load_layers(layernames):
             layers.append(None)
 
     return layers
-
-def load_tiles(tiles_path, width, height):
-    tile_image = pygame.image.load(tiles_path)
-
-    tiles = []
-    for y in range(tile_image.get_rect()[3] // height):
-        tiles.append(tile_image.subsurface(0, y * height, width, height))
-        tiles[-1].set_colorkey((255, 0, 255))
-
-    return tiles
 
 def play(level, window, tiles, editing=False):
     layernames, tilemap, spikytiles, baddies = level
@@ -335,11 +338,19 @@ def play(level, window, tiles, editing=False):
                 screen.blit(baddie.image, (baddie.x - camera.x, baddie.y - camera.y, baddie.w, baddie.h))
 
             if player.vx < 0:
+                if player.right:
+                    player.stage = 0
+                player.stage += 1
                 player.right = False
-                player.image = player.limage
+                print player.stage
+                player.image = player.limage[(player.stage/4)%len(player.rimage)]
             elif player.vx > 0:
+                if not player.right:
+                    player.stage = 0
+                player.stage += 1
                 player.right = True
-                player.image = player.rimage
+                print player.stage
+                player.image = player.rimage[(player.stage/4)%len(player.rimage)]
 
             screen.blit(player.image, (player.x - camera.x, player.y - camera.y, player.w, player.h))
 
