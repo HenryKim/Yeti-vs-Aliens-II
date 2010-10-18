@@ -107,7 +107,7 @@ decals = []
 layers_dir = ["gfx", "layers"]
 tiles_path = os.path.join("gfx", "tiles.png")
 
-framerate = 20
+framerate = 60
 
 tile_width = 32
 tile_height = 32
