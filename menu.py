@@ -22,14 +22,9 @@ def main(screen):
     bgcolor = 255, 255, 255
     fgcolor = 0, 0, 0
 
-    framerate = 20
-
-
     menuhover = -1
 
     font = pygame.font.SysFont("Bitstream Vera Sans", 24)
-
-    pygame.time.set_timer(pygame.VIDEOEXPOSE, 1000 / framerate)
 
     labels = []
     for button in buttons:
