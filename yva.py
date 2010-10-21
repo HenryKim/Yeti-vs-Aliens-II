@@ -7,6 +7,8 @@ import sys
 
 import pygame
 
+import menu
+
 def load_tiles(tiles_path, width, height):
     tile_image = pygame.image.load(tiles_path)
 
@@ -588,37 +590,6 @@ def play(level, window, tiles, editing=False):
     return level
 
 def main():
-    editing = "-e" in sys.argv
-
-    level_filename = sys.argv[-1]
-
-    if len(sys.argv) > 1 and os.path.isfile(level_filename):
-        level = eval(open(level_filename).read())
-    else:
-        if not editing:
-            if len(sys.argv) == 2:
-                print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
-
-            print "Usage: %s [-e] level" % sys.argv[0]
-            sys.exit(1)
-
-        layernames = [None, None,
-                "mountains_1.png", "clouds_1.png",
-                "mountains_2.png", "clouds_2.png",
-                "mountains_3.png", "clouds_3.png",
-                None, None, "heaven.png"]
-
-        tilemap = []
-        for i in range(14):
-            tilemap.append([0 for i in range(3 * window_width // tile_width)])
-        tilemap.append([2 for i in range(3 * window_width // tile_width)])
-
-        spikytiles = [4, 5]
-
-        baddies = []
-
-        level = layernames, tilemap, spikytiles, baddies
-
     # Short buffer for low latency.
     try:
         pygame.mixer.pre_init(buffer=512)
@@ -629,7 +600,46 @@ def main():
     pygame.time.set_timer(pygame.VIDEOEXPOSE, 1000 / framerate)
     window = pygame.display.set_mode((window_width, window_height))
 
+    pygame.display.toggle_fullscreen()
+
+    if len(sys.argv) > 1:
+        editing = "-e" in sys.argv
+
+        level_filename = sys.argv[-1]
+
+        if len(sys.argv) > 1 and os.path.isfile(level_filename):
+            level = eval(open(level_filename).read())
+        else:
+            if not editing:
+                if len(sys.argv) == 2:
+                    print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
+
+                print "Usage: %s [-e] level" % sys.argv[0]
+                sys.exit(1)
+
+            layernames = [None, None,
+                    "mountains_1.png", "clouds_1.png",
+                    "mountains_2.png", "clouds_2.png",
+                    "mountains_3.png", "clouds_3.png",
+                    None, None, "heaven.png"]
+
+            tilemap = []
+            for i in range(14):
+                tilemap.append([0 for i in range(3 * window_width // tile_width)])
+            tilemap.append([2 for i in range(3 * window_width // tile_width)])
+
+            spikytiles = [4, 5]
+
+            baddies = []
+
+            level = layernames, tilemap, spikytiles, baddies
+
+    else:
+        editing, level_filename = menu.main(window)
+	level = eval(open(level_filename).read())
+
     tiles = load_tiles(tiles_path, tile_width, tile_height)
+
     play(level, window, tiles, editing=editing)
 
     if editing:
