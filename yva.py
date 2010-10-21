@@ -619,56 +619,64 @@ def main():
 
     pygame.display.toggle_fullscreen()
 
-    if len(sys.argv) > 1:
-        editing = "-e" in sys.argv
+    while True:
+        if len(sys.argv) > 1:
+            editing = "-e" in sys.argv
 
-        level_filename = sys.argv[-1]
+            level_filename = sys.argv[-1]
 
-        if len(sys.argv) > 1 and os.path.isfile(level_filename):
-            levels = [eval(open(level_filename).read())]
+            if len(sys.argv) > 1 and os.path.isfile(level_filename):
+                levels = [eval(open(level_filename).read())]
+            else:
+                if not editing:
+                    if len(sys.argv) == 2:
+                        print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
+
+                    print "Usage: %s [-e] level" % sys.argv[0]
+                    sys.exit(1)
+
+                layernames = [None, None,
+                        "mountains_1.png", "clouds_1.png",
+                        "mountains_2.png", "clouds_2.png",
+                        "mountains_3.png", "clouds_3.png",
+                        None, None, "heaven.png"]
+
+                tilemap = []
+                for i in range(14):
+                    tilemap.append([0 for i in range(3 * window_width // tile_width)])
+                tilemap.append([2 for i in range(3 * window_width // tile_width)])
+
+                spikytiles = [4, 5]
+
+                baddies = []
+
+                level = layernames, tilemap, spikytiles, baddies
+
         else:
-            if not editing:
-                if len(sys.argv) == 2:
-                    print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
+            editing, level_filenames = menu.main(window)
+            levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
 
-                print "Usage: %s [-e] level" % sys.argv[0]
-                sys.exit(1)
+        tiles = load_tiles(tiles_path, tile_width, tile_height)
 
-            layernames = [None, None,
-                    "mountains_1.png", "clouds_1.png",
-                    "mountains_2.png", "clouds_2.png",
-                    "mountains_3.png", "clouds_3.png",
-                    None, None, "heaven.png"]
+        if editing:
+            level, _ = play(levels[0], window, tiles, editing=editing)
+            f = open(level_filename, "w")
+            f.write(repr(level))
+            f.close()
+        else:
+            for level in levels:
+                tries = 3
+                win = False
 
-            tilemap = []
-            for i in range(14):
-                tilemap.append([0 for i in range(3 * window_width // tile_width)])
-            tilemap.append([2 for i in range(3 * window_width // tile_width)])
+                while not win and tries > 0:
+                    level, win = play(level, window, tiles, editing=editing)
+                    tries -= 1
 
-            spikytiles = [4, 5]
+                if tries <= 0 and not win:
+                    break
 
-            baddies = []
-
-            level = layernames, tilemap, spikytiles, baddies
-
-    else:
-        editing, level_filenames = menu.main(window)
-        levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
-
-    tiles = load_tiles(tiles_path, tile_width, tile_height)
-
-    if editing:
-        level, _ = play(levels[0], window, tiles, editing=editing)
-        f = open(level_filename, "w")
-        f.write(repr(level))
-        f.close()
-    else:
-        for level in levels:
-            win = False
-            while not win:
-                level, win = play(level, window, tiles, editing=editing)
-
-        cutscene.cutscene(window, "cutscenes/credits/bg.png", "cutscenes/credits/fg.png", "art/music/Yetis theme 1.mp3", "cutscenes/credits/text")
+            cutscene.cutscene(window, "cutscenes/credits/bg.png", "cutscenes/credits/fg.png", "art/music/Yetis theme 1.mp3", "cutscenes/credits/text")
+            pygame.mixer.music.stop()
 
 if __name__ == "__main__":
     main()
