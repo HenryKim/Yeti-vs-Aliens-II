@@ -157,6 +157,8 @@ def play(level, window, tiles, editing=False):
     g = .6
     t = 0
 
+    win = False
+
     camera = Camera()
     player = Player(4 * tile_width, 4 * tile_height)
 
@@ -284,6 +286,11 @@ def play(level, window, tiles, editing=False):
                 player.dead = True
 
             if player.y > level_height:
+                win = False
+                break
+
+            if player.x > level_width - screen_width / 2:
+                win = True
                 break
 
             if not editing:
@@ -591,7 +598,7 @@ def play(level, window, tiles, editing=False):
                 elif event.buttons[2]:
                     tilemap[y][x] = current_tiles[1]
 
-    return level
+    return level, win
 
 def main():
     # Short buffer for low latency.
@@ -640,7 +647,7 @@ def main():
 
     else:
         editing, level_filenames = menu.main(window)
-	levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
+        levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
 
     tiles = load_tiles(tiles_path, tile_width, tile_height)
 
