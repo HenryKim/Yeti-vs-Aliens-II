@@ -93,7 +93,6 @@ def main(screen):
                                         returnlist.append("levels/" + levels[offset*6+i-2] + level)
                                 else:
                                     returnlist = ["levels/" + levels[offset*6+i-2]]
-                                print returnlist
                                 return edit, returnlist
                     else:
                         if i == 0:
