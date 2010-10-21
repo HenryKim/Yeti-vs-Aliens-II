@@ -97,10 +97,14 @@ class Player:
     w = 67
     h = 80
 
+    w = 32
+    h = 64
+
     rimage = load_tiles("gfx/characters/yeti_anim_right.png", 67, 80)
     limage = []
-    for image in rimage:
-        limage.append(pygame.transform.flip(image, True, False))
+    for i in range(len(rimage)):
+        rimage[i] = pygame.transform.rotozoom(rimage[i], 0, h/80.)
+        limage.append(pygame.transform.flip(rimage[i], True, False))
     image = rimage[0]
 
     def __init__(self, x, y):
