@@ -117,7 +117,9 @@ if (__name__ == '__main__'):
     import sys
     import pygame
     pygame.init()
+    framerate = 10
     window_width = 640
     window_height = 480
+    pygame.time.set_timer(pygame.VIDEOEXPOSE, 1000 / framerate)
     screen = pygame.display.set_mode((window_width, window_height))
     main(screen)
