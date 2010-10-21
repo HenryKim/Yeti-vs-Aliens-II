@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vi: set et:ts=4:sw=4
 
+import math
 import os
 import sys
 
@@ -68,6 +69,10 @@ class Player:
     maxjumptime = 8
     speed = 4
     right = True
+
+    charge = 0
+    mincharge = 30
+    charging = False
 
     life = 5
     heart = pygame.image.load("gfx/items/heart.png")
@@ -141,6 +146,7 @@ def play(level, window, tiles, editing=False):
     current_kind = 0
     current_tiles = [1, 0]
     g = .6
+    t = 0
 
     camera = Camera()
     player = Player(4 * tile_width, 4 * tile_height)
@@ -190,6 +196,9 @@ def play(level, window, tiles, editing=False):
                                         player.y -= 1
                                         player.vy = -player.agility
                                         player.airborne = True
+
+                                        player.charge += 10
+
                                         break
 
                 else:
@@ -304,6 +313,11 @@ def play(level, window, tiles, editing=False):
                     baddie.x += baddie.vx
                     baddie.y += baddie.vy
 
+                # Charging.
+                if player.charging:
+                    if player.charge > 0:
+                        player.charge -= 1
+
             # Position camera.
             if player.x < screen_width // 2:
                 camera.x = 0
@@ -354,6 +368,14 @@ def play(level, window, tiles, editing=False):
                 if (decal.cstage > decal.maxstage):
                     decals.remove(decal)
 
+            color = 255, 127, 63
+
+            if player.charge > player.mincharge:
+                intensity = 1.5 + .5 * math.sin(t / 3.)
+                color = [int(min(255, intensity * x)) for x in color]
+
+            pygame.draw.rect(screen, color, (6 * tile_width, tile_height / 3, player.charge, tile_height / 3))
+
             # Draw editor widgets.
             if editing:
                 pygame.draw.rect(window, (63, 63, 63), (0, 0, editor_width, window_height))
@@ -385,6 +407,8 @@ def play(level, window, tiles, editing=False):
                     else:
                         x += 2 * tile_width
 
+            t += 1
+
             pygame.display.update()
 
         elif event.type == pygame.KEYDOWN:
@@ -409,7 +433,7 @@ def play(level, window, tiles, editing=False):
                 if x > editor_width:
                     baddies.append(Baddie(kinds[current_kind], (x + camera.x - editor_width) // tile_width * tile_width, (y + camera.y) // tile_height * tile_height, True))
 
-            elif event.key == pygame.K_LCTRL:
+            elif event.key == pygame.K_z:
                 if player.right:
                     offset = 48
                     decals.append(Decal(10, player.x+48, player.y, rpunch))
@@ -423,6 +447,9 @@ def play(level, window, tiles, editing=False):
                             if baddie.y // tile_height == y and x in range(baddie.x // tile_width,
                                     (baddie.x + baddie.w) // tile_width) and not baddie.dead:
                                 baddie.dead = True
+
+            elif event.key == pygame.K_x:
+                player.charging = True
 
             elif event.key == 27:
                 break
@@ -465,6 +492,9 @@ def play(level, window, tiles, editing=False):
                 player.jumptime = -1
                 if player.vy < 0:
                     player.vy += player.agility / 2
+
+            elif event.key == pygame.K_x:
+                player.charging = False
 
         elif editing and event.type == pygame.MOUSEBUTTONDOWN:
             if event.pos[0] > editor_width:
