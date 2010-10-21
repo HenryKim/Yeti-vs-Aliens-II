@@ -49,12 +49,14 @@ class Baddie:
         self.kind, self.x, self.y, self.right = kind, x, y, right
 
         self.speed = kind.speed
+        self.stagespeed = kind.stagespeed
+        self.stage = 0
         self.w = kind.w
         self.h = kind.h
-        self.rimage = kind.image
-        self.limage = []
-        for image in self.rimage:
-            self.limage.append(pygame.transform.flip(image, True, False))
+        self.rimage = []
+        self.limage = kind.image
+        for image in self.limage:
+            self.rimage.append(pygame.transform.flip(image, True, False))
 
         if right:
             self.vx = self.speed
@@ -67,11 +69,12 @@ class Baddie:
         return "Baddie(%s, %d, %d, %s)" % (self.kind, self.x, self.y, self.right)
 
 class Kind:
-    def __init__(self, speed, w, h, spritename):
-        self.speed, self.w, self.h, self.spritename = speed, w, h, spritename
+    def __init__(self, speed, w, h, spritename, stagespeed = 4):
+        self.speed, self.w, self.h, self.spritename, self.stagespeed = speed, w, h, spritename, stagespeed
         imagepath = os.path.join("gfx", "characters", spritename)
         self.image = load_tiles(imagepath, w , h)
-        self.image[0].set_colorkey((255, 0, 255))
+        for i in range(len(self.image)):
+            self.image[i].set_colorkey((255, 0, 255))
 
     def __repr__(self):
         return "Kind(%d, %d, %d, \"%s\")" % (self.speed, self.w, self.h, self.spritename)
@@ -314,6 +317,7 @@ def play(level, window, tiles, editing=False):
 
                             for y in range(int(baddie.y // tile_height), int((baddie.y + baddie.h) // tile_height + 1)):
                                 if y in range(len(tilemap)) and tilemap[y][x]:
+                                    baddie.stage = 0
                                     baddie.vx = -baddie.speed
                                     baddie.image = baddie.limage
                                     break
@@ -323,6 +327,7 @@ def play(level, window, tiles, editing=False):
 
                             for y in range(int(baddie.y // tile_height), int((baddie.y + baddie.h) // tile_height + 1)):
                                 if y in range(len(tilemap)) and tilemap[y][x]:
+                                    baddie.stage = 0
                                     baddie.vx = baddie.speed
                                     baddie.image = baddie.rimage
                                     break
@@ -331,6 +336,8 @@ def play(level, window, tiles, editing=False):
                         baddie.vy += g
 
                     baddie.x += baddie.vx
+                    if (baddie.vy > 0):
+                        baddie.stage += 1
                     baddie.y += baddie.vy
 
                 # Charging.
@@ -366,7 +373,7 @@ def play(level, window, tiles, editing=False):
                         screen.blit(tiles[tilemap[y][x]], (x * tile_width - camera.x, y * tile_height - camera.y))
 
             for baddie in baddies:
-                screen.blit(baddie.image, (baddie.x - camera.x, baddie.y - camera.y, baddie.w, baddie.h))
+                screen.blit(baddie.image[baddie.stage/baddie.stagespeed%len(baddie.image)], (baddie.x - camera.x, baddie.y - camera.y, baddie.w, baddie.h))
 
             for decal in decals:
                 screen.blit(decal.sprite[decal.cstage//decal.stagetime], (decal.x-camera.x, decal.y - camera.y))
@@ -420,12 +427,12 @@ def play(level, window, tiles, editing=False):
                 
                 x = (editor_width - kinds[current_kind].w) // 2
                 y += 2 * tile_height
-                window.blit(kinds[current_kind].image, (x, y))
+                window.blit(kinds[current_kind].image[0], (x, y))
 
                 x = 0
                 y += 2 * tile_height
                 for kind in kinds:
-                    window.blit(kind.image, (x, y))
+                    window.blit(kind.image[0], (x, y))
 
                     if x + 3 * tile_width > editor_width:
                         x = 0
