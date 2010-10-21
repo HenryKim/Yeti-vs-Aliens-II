@@ -96,7 +96,7 @@ def main(screen):
                                 return edit, returnlist
                     else:
                         if i == 0:
-                            return False, u"levels/campaigns/default/level1"
+                            return False, [u"levels/campaigns/default/level1"]
                         elif i == 1:
                             clevel = True
                             edit = False
