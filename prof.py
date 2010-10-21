@@ -2,7 +2,9 @@
 
 import cProfile
 import pstats
+import yva
 
-cProfile.run("main()", "mainprof")
+cProfile.run("yva.main()")
 p = pstats.Stats("mainprof")
-p.sort_stats('time').print_stats(10)
+temp = p.sort_stats('time')
+temp.print_stats(10)

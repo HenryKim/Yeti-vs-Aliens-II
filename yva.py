@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # vi: set et:ts=4:sw=4
 
+import math
 import os
 import sys
 
 import pygame
+
+import menu
 
 def load_tiles(tiles_path, width, height):
     tile_image = pygame.image.load(tiles_path)
@@ -80,6 +83,10 @@ class Player:
     right = True
     stage = 0
 
+    charge = 0
+    mincharge = 30
+    charging = False
+
     life = 5
     heart = pygame.image.load("gfx/items/heart.png")
     heart.set_colorkey((255, 0, 255))
@@ -90,10 +97,14 @@ class Player:
     w = 67
     h = 80
 
+    w = 32
+    h = 64
+
     rimage = load_tiles("gfx/characters/yeti_anim_right.png", 67, 80)
     limage = []
-    for image in rimage:
-        limage.append(pygame.transform.flip(image, True, False))
+    for i in range(len(rimage)):
+        rimage[i] = pygame.transform.rotozoom(rimage[i], 0, h/80.)
+        limage.append(pygame.transform.flip(rimage[i], True, False))
     image = rimage[0]
 
     def __init__(self, x, y):
@@ -144,6 +155,9 @@ def play(level, window, tiles, editing=False):
     current_kind = 0
     current_tiles = [1, 0]
     g = .6
+    t = 0
+
+    win = False
 
     camera = Camera()
     player = Player(4 * tile_width, 4 * tile_height)
@@ -193,6 +207,9 @@ def play(level, window, tiles, editing=False):
                                         player.y -= 1
                                         player.vy = -player.agility
                                         player.airborne = True
+
+                                        player.charge += 10
+
                                         break
 
                 else:
@@ -269,6 +286,11 @@ def play(level, window, tiles, editing=False):
                 player.dead = True
 
             if player.y > level_height:
+                win = False
+                break
+
+            if player.x > level_width - screen_width / 2:
+                win = True
                 break
 
             if not editing:
@@ -306,6 +328,11 @@ def play(level, window, tiles, editing=False):
 
                     baddie.x += baddie.vx
                     baddie.y += baddie.vy
+
+                # Charging.
+                if player.charging:
+                    if player.charge > 0:
+                        player.charge -= 1
 
             # Position camera.
             if player.x < screen_width // 2:
@@ -350,7 +377,7 @@ def play(level, window, tiles, editing=False):
                 player.right = True
                 player.image = player.rimage[(player.stage/4)%len(player.rimage)]
 
-            screen.blit(player.image, (player.x - camera.x, player.y - camera.y, player.w, player.h))
+            screen.blit(player.image, (player.x - camera.x - 10, player.y - camera.y, player.w, player.h))
 
             for i in range(player.life):
                 screen.blit(player.heart, ((tile_width * 3 / 4) * i, 0, tile_width, tile_height))
@@ -362,6 +389,14 @@ def play(level, window, tiles, editing=False):
                 decal.nstage()
                 if (decal.cstage > decal.maxstage):
                     decals.remove(decal)
+
+            color = 255, 127, 63
+
+            if player.charge > player.mincharge:
+                intensity = 1.5 + .5 * math.sin(t / 3.)
+                color = [int(min(255, intensity * x)) for x in color]
+
+            pygame.draw.rect(screen, color, (6 * tile_width, tile_height / 3, player.charge, tile_height / 3))
 
             # Draw editor widgets.
             if editing:
@@ -394,6 +429,8 @@ def play(level, window, tiles, editing=False):
                     else:
                         x += 2 * tile_width
 
+            t += 1
+
             pygame.display.update()
 
         elif event.type == pygame.KEYDOWN:
@@ -418,12 +455,12 @@ def play(level, window, tiles, editing=False):
                 if x > editor_width:
                     baddies.append(Baddie(kinds[current_kind], (x + camera.x - editor_width) // tile_width * tile_width, (y + camera.y) // tile_height * tile_height, True))
 
-            elif event.key == pygame.K_LCTRL:
+            elif event.key == pygame.K_z:
                 if player.right:
                     offset = 48
-                    decals.append(Decal(10, player.x+48, player.y, rpunch))
+                    decals.append(Decal(10, player.x+player.w, player.y+player.h/2-20, rpunch))
                 else:
-                    decals.append(Decal(10, player.x-48, player.y, lpunch))
+                    decals.append(Decal(10, player.x-player.w, player.y+player.h/2-20, lpunch))
                     offset = -48-player.w
 
                 for x in (player.x + player.w - 1+offset) // tile_width - 1, (player.x + player.w+offset) // tile_width:
@@ -432,6 +469,9 @@ def play(level, window, tiles, editing=False):
                             if baddie.y // tile_height == y and x in range(baddie.x // tile_width,
                                     (baddie.x + baddie.w) // tile_width) and not baddie.dead:
                                 baddie.dead = True
+
+            elif event.key == pygame.K_x:
+                player.charging = True
 
             elif event.key == 27:
                 break
@@ -474,6 +514,9 @@ def play(level, window, tiles, editing=False):
                 player.jumptime = -1
                 if player.vy < 0:
                     player.vy += player.agility / 2
+
+            elif event.key == pygame.K_x:
+                player.charging = False
 
         elif editing and event.type == pygame.MOUSEBUTTONDOWN:
             if event.pos[0] > editor_width:
@@ -555,40 +598,9 @@ def play(level, window, tiles, editing=False):
                 elif event.buttons[2]:
                     tilemap[y][x] = current_tiles[1]
 
-    return level
+    return level, win
 
 def main():
-    editing = "-e" in sys.argv
-
-    level_filename = sys.argv[-1]
-
-    if len(sys.argv) > 1 and os.path.isfile(level_filename):
-        level = eval(open(level_filename).read())
-    else:
-        if not editing:
-            if len(sys.argv) == 2:
-                print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
-
-            print "Usage: %s [-e] level" % sys.argv[0]
-            sys.exit(1)
-
-        layernames = [None, None,
-                "mountains_1.png", "clouds_1.png",
-                "mountains_2.png", "clouds_2.png",
-                "mountains_3.png", "clouds_3.png",
-                None, None, "heaven.png"]
-
-        tilemap = []
-        for i in range(14):
-            tilemap.append([0 for i in range(3 * window_width // tile_width)])
-        tilemap.append([2 for i in range(3 * window_width // tile_width)])
-
-        spikytiles = [4, 5]
-
-        baddies = []
-
-        level = layernames, tilemap, spikytiles, baddies
-
     # Short buffer for low latency.
     try:
         pygame.mixer.pre_init(buffer=512)
@@ -599,8 +611,48 @@ def main():
     pygame.time.set_timer(pygame.VIDEOEXPOSE, 1000 / framerate)
     window = pygame.display.set_mode((window_width, window_height))
 
+    pygame.display.toggle_fullscreen()
+
+    if len(sys.argv) > 1:
+        editing = "-e" in sys.argv
+
+        level_filename = sys.argv[-1]
+
+        if len(sys.argv) > 1 and os.path.isfile(level_filename):
+            levels = [eval(open(level_filename).read())]
+        else:
+            if not editing:
+                if len(sys.argv) == 2:
+                    print "Level \"%s\" does not exist. Try creating a level using the editor option (-e)." % level_filename
+
+                print "Usage: %s [-e] level" % sys.argv[0]
+                sys.exit(1)
+
+            layernames = [None, None,
+                    "mountains_1.png", "clouds_1.png",
+                    "mountains_2.png", "clouds_2.png",
+                    "mountains_3.png", "clouds_3.png",
+                    None, None, "heaven.png"]
+
+            tilemap = []
+            for i in range(14):
+                tilemap.append([0 for i in range(3 * window_width // tile_width)])
+            tilemap.append([2 for i in range(3 * window_width // tile_width)])
+
+            spikytiles = [4, 5]
+
+            baddies = []
+
+            level = layernames, tilemap, spikytiles, baddies
+
+    else:
+        editing, level_filenames = menu.main(window)
+        levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
+
     tiles = load_tiles(tiles_path, tile_width, tile_height)
-    play(level, window, tiles, editing=editing)
+
+    for level in levels:
+        play(level, window, tiles, editing=editing)
 
     if editing:
         f = open(level_filename, "w")
