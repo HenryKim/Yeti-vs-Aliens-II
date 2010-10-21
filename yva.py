@@ -157,6 +157,7 @@ def play(level, window, tiles, editing=False):
     g = .6
     t = 0
 
+    moved = [False, False]
     win = False
 
     camera = Camera()
@@ -435,9 +436,11 @@ def play(level, window, tiles, editing=False):
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
+                moved[0] = True
                 player.vx -= player.speed
 
             elif event.key == pygame.K_RIGHT:
+                moved[1] = True
                 player.vx += player.speed
 
             elif event.key == pygame.K_UP:
@@ -505,10 +508,12 @@ def play(level, window, tiles, editing=False):
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                player.vx += player.speed
+                if moved[0]:
+                    player.vx += player.speed
 
             elif event.key == pygame.K_RIGHT:
-                player.vx -= player.speed
+                if moved[1]:
+                    player.vx -= player.speed
 
             elif event.key == pygame.K_UP:
                 player.jumptime = -1
