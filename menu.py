@@ -97,7 +97,7 @@ def main(screen):
                                 return edit, returnlist
                     else:
                         if i == 0:
-                            return False, ["levels/campaign/level1"]
+                            return False, dircache.listdir("levels/campaign/")
                         elif i == 1:
                             clevel = True
                             edit = False
