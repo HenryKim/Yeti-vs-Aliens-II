@@ -612,7 +612,7 @@ def main():
         level_filename = sys.argv[-1]
 
         if len(sys.argv) > 1 and os.path.isfile(level_filename):
-            level = eval(open(level_filename).read())
+            levels = [eval(open(level_filename).read())]
         else:
             if not editing:
                 if len(sys.argv) == 2:
@@ -639,12 +639,13 @@ def main():
             level = layernames, tilemap, spikytiles, baddies
 
     else:
-        editing, level_filename = menu.main(window)
-	level = eval(open(level_filename).read())
+        editing, level_filenames = menu.main(window)
+	levels = [eval(open(level_filename).read()) for level_filename in level_filenames]
 
     tiles = load_tiles(tiles_path, tile_width, tile_height)
 
-    play(level, window, tiles, editing=editing)
+    for level in levels:
+        play(level, window, tiles, editing=editing)
 
     if editing:
         f = open(level_filename, "w")
