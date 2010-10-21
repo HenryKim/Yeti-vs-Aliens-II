@@ -678,5 +678,8 @@ def main():
             cutscene.cutscene(window, "cutscenes/credits/bg.png", "cutscenes/credits/fg.png", "art/music/Yetis theme 1.mp3", "cutscenes/credits/text")
             pygame.mixer.music.stop()
 
+        if editing:
+            break
+
 if __name__ == "__main__":
     main()
