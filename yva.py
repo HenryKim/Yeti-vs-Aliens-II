@@ -370,7 +370,7 @@ def play(level, window, tiles, editing=False):
                 player.right = True
                 player.image = player.rimage[(player.stage/4)%len(player.rimage)]
 
-            screen.blit(player.image, (player.x - camera.x, player.y - camera.y, player.w, player.h))
+            screen.blit(player.image, (player.x - camera.x - 10, player.y - camera.y, player.w, player.h))
 
             for i in range(player.life):
                 screen.blit(player.heart, ((tile_width * 3 / 4) * i, 0, tile_width, tile_height))
