@@ -364,6 +364,13 @@ def play(level, window, tiles, editing=False):
             for baddie in baddies:
                 screen.blit(baddie.image, (baddie.x - camera.x, baddie.y - camera.y, baddie.w, baddie.h))
 
+            for decal in decals:
+                screen.blit(decal.sprite[decal.cstage//decal.stagetime], (decal.x-camera.x, decal.y - camera.y))
+
+            for decal in decals:
+                decal.nstage()
+                if (decal.cstage > decal.maxstage):
+                    decals.remove(decal)
             if player.vx < 0:
                 if player.right:
                     player.stage = 0
@@ -382,13 +389,6 @@ def play(level, window, tiles, editing=False):
             for i in range(player.life):
                 screen.blit(player.heart, ((tile_width * 3 / 4) * i, 0, tile_width, tile_height))
 
-            for decal in decals:
-                screen.blit(decal.sprite[decal.cstage//decal.stagetime], (decal.x-camera.x, decal.y - camera.y))
-
-            for decal in decals:
-                decal.nstage()
-                if (decal.cstage > decal.maxstage):
-                    decals.remove(decal)
 
             color = 255, 127, 63
 

@@ -7,6 +7,7 @@ import dircache
 
        
 def main(screen):
+    bgimage = pygame.image.load("gfx/menu.png")
     main = ["New game", "Custom Level", "Level Editor", "Quit."]
     levels = dircache.listdir('levels/')
     buttons = main
@@ -19,8 +20,8 @@ def main(screen):
     edit = False
     update = True
 
-    bgcolor = 255, 255, 255
-    fgcolor = 0, 0, 0
+    fgcolor = 255, 255, 255
+    #bgcolor = 0, 0, 0
 
     menuhover = -1
 
@@ -51,7 +52,7 @@ def main(screen):
                     labels.append(font.render(choices, 1, fgcolor))
 
         if event.type == pygame.VIDEOEXPOSE:
-            screen.fill(bgcolor)
+            screen.blit(bgimage, (0,0))
 
             for i in range(len(labels)):
                 screen.blit(labels[i], (menu_margin, i * button_height + menu_margin))
