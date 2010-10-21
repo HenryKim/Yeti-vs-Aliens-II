@@ -8,6 +8,7 @@ import sys
 import pygame
 
 import menu
+import cutscene
 
 def load_tiles(tiles_path, width, height):
     tile_image = pygame.image.load(tiles_path)
@@ -290,7 +291,7 @@ def play(level, window, tiles, editing=False):
                 win = False
                 break
 
-            if player.x > level_width - screen_width / 2:
+            if not editing and player.x > level_width - screen_width / 2:
                 win = True
                 break
 
@@ -656,13 +657,18 @@ def main():
 
     tiles = load_tiles(tiles_path, tile_width, tile_height)
 
-    for level in levels:
-        play(level, window, tiles, editing=editing)
-
     if editing:
+        level, _ = play(levels[0], window, tiles, editing=editing)
         f = open(level_filename, "w")
         f.write(repr(level))
         f.close()
+    else:
+        for level in levels:
+            win = False
+            while not win:
+                level, win = play(level, window, tiles, editing=editing)
+
+        cutscene.cutscene(window, "cutscenes/credits/bg.png", "cutscenes/credits/fg.png", "art/music/Yetis theme 1.mp3", "cutscenes/credits/text")
 
 if __name__ == "__main__":
     main()
