@@ -91,7 +91,14 @@ def main(screen):
                             offset += 1
                         else:
                             if i+offset*6 - 2 < len(levels):
-                                return edit, u"levels/" + levels[offset*6+i-2]
+                                if "/" in levels[offset*6+i-2]:
+                                    returnlist = []
+                                    for level in dircache.listdir('levels/' + levels[offset*6+i-2]):
+                                        returnlist.append("levels/" + levels[offset*6+i-2] + level)
+                                else:
+                                    returnlist = ["levels/" + levels[offset*6+i-2]]
+                                print returnlist
+                                return edit, returnlist
                     else:
                         if i == 0:
                             return False, u"levels/campaigns/default/level1"
