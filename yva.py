@@ -51,7 +51,9 @@ class Baddie:
         self.w = kind.w
         self.h = kind.h
         self.rimage = kind.image
-        self.limage = pygame.transform.flip(kind.image, True, False)
+        self.limage = []
+        for image in self.rimage:
+            self.limage.append(pygame.transform.flip(image, True, False))
 
         if right:
             self.vx = self.speed
@@ -67,8 +69,8 @@ class Kind:
     def __init__(self, speed, w, h, spritename):
         self.speed, self.w, self.h, self.spritename = speed, w, h, spritename
         imagepath = os.path.join("gfx", "characters", spritename)
-        self.image = pygame.image.load(imagepath)
-        self.image.set_colorkey((255, 0, 255))
+        self.image = load_tiles(imagepath, w , h)
+        self.image[0].set_colorkey((255, 0, 255))
 
     def __repr__(self):
         return "Kind(%d, %d, %d, \"%s\")" % (self.speed, self.w, self.h, self.spritename)
@@ -127,9 +129,9 @@ window_width = 640
 window_height = 480
 editor_width = 4 * tile_width
 
-kinds = [Kind(2, 32, 32, "skier.png"),
-         Kind(1, 32, 32, "blob.png"),
-         Kind(4, 64, 64, "alien.png")]
+kinds = [Kind(2, 40, 95, "alien.png"),
+        Kind(1, 32, 32, "blob.png"),
+         Kind(4, 122, 150, "lev_trotskij.png") ]
 
 
 def load_layers(layernames):
