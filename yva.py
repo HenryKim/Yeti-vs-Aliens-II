@@ -126,7 +126,7 @@ tile_height = 32
 
 window_width = 640
 window_height = 480
-editor_width = 4 * tile_width
+editor_width = 8 * tile_width
 
 kinds = [Kind(2, 32, 32, "skier.png"),
          Kind(1, 32, 32, "blob.png"),
