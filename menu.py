@@ -88,15 +88,14 @@ def main(screen):
                         else:
                             if i+offset*6 - 2 < len(levels):
                                 if "/" in levels[offset*6+i-2]:
-                                    returnlist = []
-                                    for level in dircache.listdir('levels/' + levels[offset*6+i-2]):
-                                        returnlist.append("levels/" + levels[offset*6+i-2] + level)
+                                    returnlist = ["levels/" + levels[offset*6+i-2] + x for x in dircache.listdir("levels/"+ levels[offset*6+i-2] )]
+
                                 else:
                                     returnlist = ["levels/" + levels[offset*6+i-2]]
                                 return edit, returnlist
                     else:
                         if i == 0:
-                            return False, dircache.listdir("levels/campaign/")
+                            return False, ["levels/campaign/" + x for x in dircache.listdir("levels/campaign/")]
                         elif i == 1:
                             clevel = True
                             edit = False
