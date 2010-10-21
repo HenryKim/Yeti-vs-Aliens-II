@@ -460,7 +460,7 @@ def play(level, window, tiles, editing=False):
                     offset = 48
                     decals.append(Decal(10, player.x+player.w, player.y+player.h/2-20, rpunch))
                 else:
-                    decals.append(Decal(10, player.x-player.w/2, player.y+player.h/2-20, lpunch))
+                    decals.append(Decal(10, player.x-player.w, player.y+player.h/2-20, lpunch))
                     offset = -48-player.w
 
                 for x in (player.x + player.w - 1+offset) // tile_width - 1, (player.x + player.w+offset) // tile_width:
