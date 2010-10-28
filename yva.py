@@ -631,9 +631,9 @@ def main():
     while True:
         if len(sys.argv) > 1:
             editing = "-e" in sys.argv
-
+            levels = []
             level_filename = sys.argv[-1]
-
+            levels.append(level_filename)
             if len(sys.argv) > 1 and os.path.isfile(level_filename):
                 levels = [eval(open(level_filename).read())]
             else:
